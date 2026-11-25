@@ -13,6 +13,11 @@ reload_time: 300
 #   itemsadder-geoda:50        — предмет ItemsAdder (можно itemsadder-namespace:geoda:50 или ia-geoda:50)
 #   mythicmobs-geoda:10        — предмет MythicMobs (можно mm-geoda:10)
 #
+# Мобы — при выкапывании кисточкой вместо предмета появляется моб:
+#   mob:HUSK:80                — ванильный моб (тип из EntityType: HUSK, ZOMBIE, SKELETON...)
+#   mob:mythicmobs-SkeletonKing:10 — моб MythicMobs (можно mob:mm-SkeletonKing:10)
+#   mob:HUSK*3:20              — сразу 3 моба (или *2-4 — случайно от 2 до 4)
+#
 # Необязательно: количество через звёздочку — diamond*3:20 или iron_ingot*2-5:30
 #
 # Как считается шанс: в каждом блоке лежит ОДИН предмет.
@@ -25,6 +30,15 @@ loots:
   - iron_axe:10
 #  - itemsadder-geoda:50
 #  - mythicmobs-geoda:10
+#  - mob:HUSK:80
+#  - mob:mythicmobs-SkeletonKing:10
+
+# Какой предмет видно в подозрительном блоке, если там лежит моб
+mob-loot:
+  # auto — яйцо призыва этого моба (для мобов MythicMobs — fallback-item),
+  # или любой предмет, например BONE — тогда игрок не знает заранее, что там моб
+  display-item: auto
+  fallback-item: BONE
 
 # Перебрасывать лут у НЕраскопанных подозрительных блоков при обновлении.
 # false — нетронутые блоки сохраняют свой предмет (пустые всё равно получат новый лут).
