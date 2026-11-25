@@ -9,6 +9,8 @@ import ru.freedom.archeology.listener.WandListener;
 import ru.freedom.archeology.listener.ZoneListener;
 import ru.freedom.archeology.loot.ItemResolver;
 import ru.freedom.archeology.loot.LootTable;
+import ru.freedom.archeology.loot.MobLoot;
+import ru.freedom.archeology.listener.MobLootListener;
 import ru.freedom.archeology.regen.RegenService;
 import ru.freedom.archeology.zone.ZoneManager;
 
@@ -28,8 +30,8 @@ public final class ArcheologyPlugin extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         settings = new Settings(getConfig());
-        loot = new LootTable(new ItemResolver(getLogger()));
-        loot.load(getConfig().getList("loots"), getLogger());
+        loot = new LootTable(new ItemResolver(getLogger()), new MobLoot(this));
+        loadLoot();
 
         zones = new ZoneManager(this);
         zones.load();
@@ -39,6 +41,7 @@ public final class ArcheologyPlugin extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(wand, this);
         Bukkit.getPluginManager().registerEvents(new ZoneListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new MobLootListener(loot.mobs()), this);
 
         ArcheologyCommand command = new ArcheologyCommand(this);
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event ->
@@ -70,8 +73,14 @@ public final class ArcheologyPlugin extends JavaPlugin {
         int oldReload = settings.reloadTime;
         reloadConfig();
         settings = new Settings(getConfig());
-        loot.load(getConfig().getList("loots"), getLogger());
+        loadLoot();
         if (settings.reloadTime != oldReload) regen.resetTimer();
+    }
+
+    private void loadLoot() {
+        loot.mobs().configure(getConfig().getString("mob-loot.display-item", "auto"),
+                getConfig().getString("mob-loot.fallback-item", "BONE"));
+        loot.load(getConfig().getList("loots"), getLogger());
     }
 
     public Settings settings() { return settings; }

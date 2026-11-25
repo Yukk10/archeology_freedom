@@ -16,14 +16,21 @@ import java.util.logging.Logger;
  */
 public final class LootTable {
 
-    public record Entry(ItemResolver.Source source, String id, double chance, int minAmount, int maxAmount) {}
+    /** {@code mob != null} — вместо предмета спавнится моб. */
+    public record Entry(ItemResolver.Source source, MobLoot.Source mob, String id, double chance, int minAmount, int maxAmount) {}
 
     private final List<Entry> entries = new ArrayList<>();
     private final ItemResolver resolver;
+    private final MobLoot mobs;
     private double total;
 
-    public LootTable(ItemResolver resolver) {
+    public LootTable(ItemResolver resolver, MobLoot mobs) {
         this.resolver = resolver;
+        this.mobs = mobs;
+    }
+
+    public MobLoot mobs() {
+        return mobs;
     }
 
     public void load(List<?> raw, Logger log) {
@@ -79,6 +86,13 @@ public final class LootTable {
         }
 
         String lower = item.toLowerCase(Locale.ROOT);
+        if (lower.startsWith("mob:")) {
+            MobLoot.Parsed mob = mobs.parse(item.substring(4).trim(), line);
+            if (mob == null) return;
+            entries.add(new Entry(null, mob.source(), mob.id(), chance, min, max));
+            total += chance;
+            return;
+        }
         ItemResolver.Source source = ItemResolver.Source.VANILLA;
         String id = item;
         if (lower.startsWith("itemsadder-")) {
@@ -98,7 +112,7 @@ public final class LootTable {
             log.warning("Пустой id предмета в строке лута: " + line);
             return;
         }
-        entries.add(new Entry(source, id, chance, min, max));
+        entries.add(new Entry(source, null, id, chance, min, max));
         total += chance;
     }
 
@@ -106,7 +120,7 @@ public final class LootTable {
         return entries.size();
     }
 
-    /** Случайный предмет или null (пустой блок). */
+    /** Случайный предмет (или предмет-метка моба) либо null (пустой блок). */
     public ItemStack roll() {
         if (entries.isEmpty()) return null;
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
@@ -114,6 +128,12 @@ public final class LootTable {
         for (Entry e : entries) {
             r -= e.chance();
             if (r < 0) {
+                if (e.mob() != null) {
+                    int count = e.minAmount() == e.maxAmount()
+                            ? e.minAmount()
+                            : rnd.nextInt(e.minAmount(), e.maxAmount() + 1);
+                    return mobs.marker(e.mob(), e.id(), count);
+                }
                 ItemStack item = resolver.resolve(e.source(), e.id());
                 if (item == null) return null;
                 if (e.maxAmount() > 1) { // количество указано через *N — иначе оставляем как у предмета
