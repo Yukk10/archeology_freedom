@@ -4,7 +4,7 @@ main: ru.freedom.archeology.ArcheologyPlugin
 api-version: '1.21'
 description: Зоны археологии с авто-восстановлением подозрительного песка и гравия
 author: Freedom
-softdepend: [PlaceholderAPI, ItemsAdder, MythicMobs]
+softdepend: [PlaceholderAPI, ItemsAdder, MythicMobs, WorldGuard]
 
 permissions:
   archeology.admin:

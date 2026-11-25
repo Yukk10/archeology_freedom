@@ -11,6 +11,7 @@ import ru.freedom.archeology.loot.ItemResolver;
 import ru.freedom.archeology.loot.LootTable;
 import ru.freedom.archeology.loot.MobLoot;
 import ru.freedom.archeology.listener.MobLootListener;
+import ru.freedom.archeology.listener.BrushRegionListener;
 import ru.freedom.archeology.regen.RegenService;
 import ru.freedom.archeology.zone.ZoneManager;
 
@@ -43,6 +44,7 @@ public final class ArcheologyPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(wand, this);
         Bukkit.getPluginManager().registerEvents(new ZoneListener(this), this);
         Bukkit.getPluginManager().registerEvents(new MobLootListener(loot.mobs()), this);
+        Bukkit.getPluginManager().registerEvents(new BrushRegionListener(this), this);
 
         ArcheologyCommand command = new ArcheologyCommand(this);
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event ->

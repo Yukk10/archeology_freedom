@@ -27,6 +27,8 @@ public final class Settings {
     public final int scanChunksPerTick;
     public final long maxZoneVolume;
     public final int autosaveInterval;
+    /** Регионы WorldGuard (id в нижнем регистре), где кисточкой можно копать в обход привата. */
+    public final java.util.Set<String> brushRegions;
 
     public final Material wandMaterial;
     public final Component wandName;
@@ -48,6 +50,10 @@ public final class Settings {
         scanChunksPerTick = Math.max(1, c.getInt("performance.scan-chunks-per-tick", 2));
         maxZoneVolume = Math.max(1, c.getLong("performance.max-zone-volume", 4_000_000L));
         autosaveInterval = Math.max(10, c.getInt("performance.autosave-interval", 60));
+        brushRegions = c.getStringList("region-list-brush").stream()
+                .map(r -> r.trim().toLowerCase(java.util.Locale.ROOT))
+                .filter(r -> !r.isEmpty())
+                .collect(java.util.stream.Collectors.toUnmodifiableSet());
 
         Material m = Material.matchMaterial(c.getString("wand.material", "GOLDEN_SHOVEL"));
         wandMaterial = (m == null || !m.isItem()) ? Material.GOLDEN_SHOVEL : m;
