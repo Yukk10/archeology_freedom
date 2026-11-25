@@ -22,6 +22,39 @@ public final class ItemResolver {
 
     public enum Source { VANILLA, ITEMSADDER, MYTHICMOBS }
 
+    /** Предмет из конфига: источник + id без префикса. */
+    public record Ref(Source source, String id) {}
+
+    /**
+     * Разбор "diamond", "minecraft:diamond", "itemsadder-ns:item" / "ia-item",
+     * "mythicmobs-item" / "mm-item". Пустой id — null.
+     */
+    public static Ref parseRef(String item) {
+        String s = item == null ? "" : item.trim();
+        String lower = s.toLowerCase(java.util.Locale.ROOT);
+        Source source = Source.VANILLA;
+        String id = s;
+        if (lower.startsWith("itemsadder-")) {
+            source = Source.ITEMSADDER;
+            id = s.substring("itemsadder-".length());
+        } else if (lower.startsWith("ia-")) {
+            source = Source.ITEMSADDER;
+            id = s.substring(3);
+        } else if (lower.startsWith("mythicmobs-")) {
+            source = Source.MYTHICMOBS;
+            id = s.substring("mythicmobs-".length());
+        } else if (lower.startsWith("mm-")) {
+            source = Source.MYTHICMOBS;
+            id = s.substring(3);
+        }
+        id = id.trim();
+        return id.isEmpty() ? null : new Ref(source, id);
+    }
+
+    public ItemStack resolve(Ref ref) {
+        return ref == null ? null : resolve(ref.source(), ref.id());
+    }
+
     private final Logger log;
     private final Map<String, ItemStack> cache = new HashMap<>();
     private final Set<String> warned = new HashSet<>();

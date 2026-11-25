@@ -93,26 +93,12 @@ public final class LootTable {
             total += chance;
             return;
         }
-        ItemResolver.Source source = ItemResolver.Source.VANILLA;
-        String id = item;
-        if (lower.startsWith("itemsadder-")) {
-            source = ItemResolver.Source.ITEMSADDER;
-            id = item.substring("itemsadder-".length());
-        } else if (lower.startsWith("ia-")) {
-            source = ItemResolver.Source.ITEMSADDER;
-            id = item.substring(3);
-        } else if (lower.startsWith("mythicmobs-")) {
-            source = ItemResolver.Source.MYTHICMOBS;
-            id = item.substring("mythicmobs-".length());
-        } else if (lower.startsWith("mm-")) {
-            source = ItemResolver.Source.MYTHICMOBS;
-            id = item.substring(3);
-        }
-        if (id.isEmpty()) {
+        ItemResolver.Ref ref = ItemResolver.parseRef(item);
+        if (ref == null) {
             log.warning("Пустой id предмета в строке лута: " + line);
             return;
         }
-        entries.add(new Entry(source, null, id, chance, min, max));
+        entries.add(new Entry(ref.source(), null, ref.id(), chance, min, max));
         total += chance;
     }
 

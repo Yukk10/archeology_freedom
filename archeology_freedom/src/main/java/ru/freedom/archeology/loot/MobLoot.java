@@ -32,28 +32,47 @@ public final class MobLoot {
     private final NamespacedKey countKey;
     private final Logger log;
     private final Set<String> warned = new HashSet<>();
-    private Material fallbackDisplay = Material.BONE;
-    private boolean autoDisplay = true;
+    private final ItemResolver resolver;
+    private static final ItemResolver.Ref BONE = new ItemResolver.Ref(ItemResolver.Source.VANILLA, "BONE");
+    /** null — режим auto (яйцо призыва). */
+    private ItemResolver.Ref display;
+    private ItemResolver.Ref fallback = BONE;
 
-    public MobLoot(Plugin plugin) {
+    public MobLoot(Plugin plugin, ItemResolver resolver) {
+        this.resolver = resolver;
         this.mobKey = new NamespacedKey(plugin, "loot_mob");
         this.countKey = new NamespacedKey(plugin, "loot_mob_count");
         this.log = plugin.getLogger();
     }
 
-    /** "auto" — яйцо призыва для ванильных мобов, иначе {@code fallback}; либо конкретный материал. */
-    public void configure(String display, String fallback) {
+    /**
+     * display: "auto" (яйцо призыва для ванильных мобов, иначе fallback) или предмет
+     * в формате лута — diamond, itemsadder-ns:item, mythicmobs-item.
+     */
+    public void configure(String displaySpec, String fallbackSpec) {
         warned.clear();
-        Material fb = Material.matchMaterial(fallback == null ? "" : fallback);
-        fallbackDisplay = fb != null && fb.isItem() && !fb.isAir() ? fb : Material.BONE;
-        if (display == null || display.equalsIgnoreCase("auto")) {
-            autoDisplay = true;
+        fallback = checked(fallbackSpec, "mob-loot.fallback-item");
+        if (fallback == null) fallback = BONE;
+        if (displaySpec == null || displaySpec.isBlank() || displaySpec.trim().equalsIgnoreCase("auto")) {
+            display = null;
         } else {
-            autoDisplay = false;
-            Material m = Material.matchMaterial(display);
-            if (m != null && m.isItem() && !m.isAir()) fallbackDisplay = m;
-            else log.warning("mob-loot.display-item: неизвестный предмет " + display + ", используется " + fallbackDisplay);
+            display = checked(displaySpec, "mob-loot.display-item");
+            if (display == null) display = fallback;
         }
+    }
+
+    /** Ванильные предметы проверяем сразу; ItemsAdder/MythicMobs — при первом использовании (грузятся позже). */
+    private ItemResolver.Ref checked(String spec, String path) {
+        ItemResolver.Ref ref = ItemResolver.parseRef(spec);
+        if (ref == null) return null;
+        if (ref.source() == ItemResolver.Source.VANILLA) {
+            Material m = Material.matchMaterial(ref.id());
+            if (m == null || !m.isItem() || m.isAir()) {
+                log.warning(path + ": неизвестный предмет " + spec + ", используется BONE");
+                return null;
+            }
+        }
+        return ref;
     }
 
     /** Разбор id после "mob:". Возвращает null и пишет предупреждение, если моб неверный. */
@@ -94,12 +113,14 @@ public final class MobLoot {
     // ------------------------------------------------------------------ предмет-метка
 
     public ItemStack marker(Source source, String id, int count) {
-        Material display = fallbackDisplay;
-        if (autoDisplay && source == Source.VANILLA) {
+        ItemStack item = null;
+        if (display == null && source == Source.VANILLA) {
             Material egg = Material.matchMaterial(id + "_SPAWN_EGG");
-            if (egg != null && egg.isItem()) display = egg;
+            if (egg != null && egg.isItem()) item = new ItemStack(egg);
         }
-        ItemStack item = new ItemStack(display);
+        if (item == null) item = resolver.resolve(display != null ? display : fallback);
+        if (item == null) item = new ItemStack(Material.BONE); // ItemsAdder ещё не загрузился / предмета нет
+        item.setAmount(1);
         ItemMeta meta = item.getItemMeta();
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         pdc.set(mobKey, PersistentDataType.STRING, source.name() + ":" + id);
