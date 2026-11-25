@@ -1,0 +1,94 @@
+# ==========================================================
+#                 archeology_freedom — config.yml
+# ==========================================================
+
+# Через сколько секунд все зоны обновляются:
+# раскопанный (обычный) песок/гравий снова становится ПОДОЗРИТЕЛЬНЫМ
+# и получает новый случайный лут.
+reload_time: 300
+
+# Список лута: предмет:шанс (шанс в процентах, можно дробный: 0.5)
+#
+#   diamond:50                 — ванильный предмет (можно minecraft:diamond:50)
+#   itemsadder-geoda:50        — предмет ItemsAdder (можно itemsadder-namespace:geoda:50 или ia-geoda:50)
+#   mythicmobs-geoda:10        — предмет MythicMobs (можно mm-geoda:10)
+#
+# Необязательно: количество через звёздочку — diamond*3:20 или iron_ingot*2-5:30
+#
+# Как считается шанс: в каждом блоке лежит ОДИН предмет.
+#   Если сумма шансов <= 100 — каждый предмет выпадает ровно со своим шансом,
+#   а в оставшихся процентах блок пустой (кисточка ничего не выбьет).
+#   Если сумма > 100 — шансы считаются как веса (пустых блоков не будет).
+loots:
+  - diamond:50
+  - emerald:1
+  - iron_axe:10
+#  - itemsadder-geoda:50
+#  - mythicmobs-geoda:10
+
+# Перебрасывать лут у НЕраскопанных подозрительных блоков при обновлении.
+# false — нетронутые блоки сохраняют свой предмет (пустые всё равно получат новый лут).
+reroll-untouched: false
+
+# Защита зон «как приват»: игроки без права archeology.bypass не могут
+# ломать/ставить блоки в зоне, взрывы и поршни её не трогают.
+# Кисточкой копать можно всегда.
+protection:
+  enabled: true
+  # Не давать подозрительному/обычному песку и гравию в зоне осыпаться
+  prevent-falling: true
+
+# Оптимизация (сколько работы делать за 1 тик сервера)
+performance:
+  # Сколько блоков восстанавливать за тик
+  blocks-per-tick: 300
+  # Сколько чанков сканировать за тик (поиск подозрительных блоков при создании зоны)
+  scan-chunks-per-tick: 2
+  # Максимальный объём одной зоны (в блоках)
+  max-zone-volume: 4000000
+  # Как часто сохранять зоны (сек), если были изменения
+  autosave-interval: 60
+
+# Специальная лопата для выделения
+wand:
+  material: GOLDEN_SHOVEL
+  name: "<gold><bold>Лопата археолога"
+  lore:
+    - "<gray>ЛКМ по блоку — <yellow>точка 1"
+    - "<gray>ПКМ по блоку — <yellow>точка 2"
+    - "<gray>Затем: <white>/archeology claim <название>"
+
+# Формат %archeology_timer% (склонения: 1 / 2 / 5)
+timer:
+  hours: ["час", "часа", "часов"]
+  minutes: ["минута", "минуты", "минут"]
+  seconds: ["секунда", "секунды", "секунд"]
+  # Показывать секунды, если осталось больше минуты
+  show-seconds: true
+  now: "сейчас"
+
+# Сообщения (MiniMessage: https://webui.advntr.dev/)
+messages:
+  prefix: "<dark_gray>[<gold>Археология<dark_gray>] "
+  player-only: "<red>Команда доступна только игроку."
+  wand-given: "<green>Вы получили лопату археолога."
+  pos1: "<green>Точка 1: <white><x> <y> <z>"
+  pos2: "<green>Точка 2: <white><x> <y> <z>"
+  selection-size: "<gray>Выделено блоков: <white><volume>"
+  no-selection: "<red>Сначала выделите зону лопатой (/archeology wand)."
+  different-worlds: "<red>Точки выделения в разных мирах."
+  too-big: "<red>Зона слишком большая (<volume> блоков, максимум <max>)."
+  invalid-name: "<red>Название может содержать только буквы, цифры, _ и - (до 32 символов)."
+  zone-exists: "<red>Зона <white><name></white> уже существует."
+  zone-created: "<green>Зона <white><name></white> создана. <gray>Сканирую подозрительные блоки..."
+  zone-scanned: "<green>Зона <white><name></white>: найдено подозрительных блоков — <white><count></white>."
+  zone-not-found: "<red>Зона <white><name></white> не найдена."
+  zone-removed: "<green>Зона <white><name></white> удалена."
+  reloaded: "<green>Конфиг перезагружен. Лута: <white><loot></white>, зон: <white><zones></white>."
+  refreshed: "<green>Все зоны поставлены в очередь на обновление."
+  list-header: "<gold>Зоны археологии (<count>):"
+  list-entry: "<gray>- <white><name></white> <dark_gray>(<world> <x1>,<y1>,<z1> → <x2>,<y2>,<z2>, блоков: <blocks>)"
+  list-empty: "<gray>Зон пока нет."
+  protected: "<red>Это зона археологии — здесь можно только копать кисточкой."
+  block-tracked: "<green>Блок добавлен в зону <white><name></white>."
+  block-untracked: "<yellow>Блок убран из зоны <white><name></white>."

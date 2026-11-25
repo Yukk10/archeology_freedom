@@ -1,0 +1,41 @@
+name: archeology_freedom
+version: '${project.version}'
+main: ru.freedom.archeology.ArcheologyPlugin
+api-version: '1.21'
+description: Зоны археологии с авто-восстановлением подозрительного песка и гравия
+author: Freedom
+softdepend: [PlaceholderAPI, ItemsAdder, MythicMobs]
+
+permissions:
+  archeology.admin:
+    description: Полный доступ к плагину
+    default: op
+    children:
+      archeology.wand: true
+      archeology.claim: true
+      archeology.remove: true
+      archeology.reload: true
+      archeology.list: true
+      archeology.refresh: true
+      archeology.bypass: true
+  archeology.wand:
+    description: /archeology wand
+    default: op
+  archeology.claim:
+    description: /archeology claim
+    default: op
+  archeology.remove:
+    description: /archeology remove
+    default: op
+  archeology.reload:
+    description: /archeology reload
+    default: op
+  archeology.list:
+    description: /archeology list
+    default: op
+  archeology.refresh:
+    description: /archeology refresh
+    default: op
+  archeology.bypass:
+    description: Ломать/ставить блоки внутри зон археологии
+    default: op
