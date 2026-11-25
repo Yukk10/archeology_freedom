@@ -30,7 +30,8 @@ public final class ArcheologyPlugin extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         settings = new Settings(getConfig());
-        loot = new LootTable(new ItemResolver(getLogger()), new MobLoot(this));
+        ItemResolver resolver = new ItemResolver(getLogger());
+        loot = new LootTable(resolver, new MobLoot(this, resolver));
         loadLoot();
 
         zones = new ZoneManager(this);

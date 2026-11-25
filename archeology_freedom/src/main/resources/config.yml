@@ -36,7 +36,8 @@ loots:
 # Какой предмет видно в подозрительном блоке, если там лежит моб
 mob-loot:
   # auto — яйцо призыва этого моба (для мобов MythicMobs — fallback-item),
-  # или любой предмет, например BONE — тогда игрок не знает заранее, что там моб
+  # или любой предмет, например BONE — тогда игрок не знает заранее, что там моб.
+  # Предметы пишутся как в loots: BONE, itemsadder-basic:archeology_shard, mythicmobs-geoda
   display-item: auto
   fallback-item: BONE
 
